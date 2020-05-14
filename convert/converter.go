@@ -42,21 +42,31 @@ func tokenize(expression string) {
 	tokens := make([]string, 0, len(expression))
 
 	split := func(remaining []byte, atEOF bool) (advance int, token []byte, err error) {
-		var negativeSign byte
+		var isNegativeNumber bool
+		var startNumberIndex = -1
 		for i, b := range remaining {
 			fmt.Println("Byte: ", b)
+			if startNumberIndex > -1 && !isNumber(b) {
+				if isNegativeNumber {
+					return i, remaining[startNumberIndex-1 : i], nil
+				}
+				return i, remaining[startNumberIndex:i], nil
+			}
 
 			if isOperator(b) {
 				if isNegativeSign(b, tokens) {
-					negativeSign = b
+					isNegativeNumber = true
 				} else {
 					return i + 1, remaining[i : i+1], nil
 				}
 			} else if isNumber(b) {
-				if negativeSign == '-' {
-					return i + 1, remaining[i-1 : i+1], nil
+				if startNumberIndex == -1 {
+					startNumberIndex = i
 				}
-				return i + 1, remaining[i : i+1], nil
+				// if negativeSign == '-' {
+				// 	return i + 1, remaining[i-1 : i+1], nil
+				// }
+				// return i + 1, remaining[i : i+1], nil
 			} else if b == '(' || b == ')' {
 				return i + 1, remaining[i : i+1], nil
 			}
