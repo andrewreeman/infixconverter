@@ -12,7 +12,7 @@
 			"request": "launch",
 			"mode": "debug",
 			"program": "${workspaceFolder}/main.go",
-			"args": ["-e", "-1"]
+			"args": ["-e", "-(-1+84)/(5*4)"]
 		}
 		]
 	}

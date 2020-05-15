@@ -74,7 +74,9 @@ func tokenize(expression string) []token {
 		var isNegativeNumber bool
 		var startNumberIndex = -1
 		for i, b := range remaining {
-			if startNumberIndex > -1 && !isNumber(b) {
+			if isStartOfGroup(b) && isNegativeNumber {
+				return i, remaining[i-1 : i], nil
+			} else if startNumberIndex > -1 && !isNumber(b) {
 				startNumberIndexTmp := startNumberIndex
 				startNumberIndex = -1
 				if isNegativeNumber {

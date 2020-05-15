@@ -20,6 +20,10 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 			input:    "(-1+84)/(5*4)",
 			expected: "-1 84 + 5 4 * /",
 		},
+		testPackage{
+			input:    "-(-1+84)/(5*4)",
+			expected: "-1 84 + 5 4 * / -",
+		},
 	}
 
 	for _, test := range tests {
