@@ -13,14 +13,14 @@ func Convert(expression string) string {
 	}
 
 	tokens := tokenize(expression)
-	// tokens = toPostFix(tokens)
+	tokens = toPostFix(tokens)
 
 	builder := strings.Builder{}
 	builder.Grow(len(tokens))
 
 	for _, t := range tokens {
 		fmt.Println(t)
-		builder.WriteString(t.value)
+		builder.WriteString(t.value + " ")
 	}
 	return builder.String()
 }
@@ -40,11 +40,11 @@ func toPostFix(tokens []token) []token {
 						rightOperandExpressionStack := toPostFix(tokens[i:])
 						stack = append(stack, rightOperandExpressionStack...)
 						stack = append(stack, tmpToken)
+						return stack
 					}
-				} else {
-					stack = append(stack, t)
-					stack = append(stack, tmpToken)
 				}
+				stack = append(stack, t)
+				stack = append(stack, tmpToken)
 				tmpToken.tokenType = unknownType
 			} else {
 				stack = append(stack, t)
@@ -56,6 +56,7 @@ func toPostFix(tokens []token) []token {
 			rightOperandExpressionStack := toPostFix(tokens[i+1:])
 			stack = append(stack, rightOperandExpressionStack...)
 			stack = append(stack, tmpToken)
+			return stack
 		}
 
 	}
