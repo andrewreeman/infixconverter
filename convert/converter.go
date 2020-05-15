@@ -22,7 +22,8 @@ func Convert(expression string) string {
 		fmt.Println(t)
 		builder.WriteString(t.value + " ")
 	}
-	return builder.String()
+
+	return strings.TrimSpace(builder.String())
 }
 
 func toPostFix(tokens []token) []token {
@@ -95,6 +96,12 @@ func tokenize(expression string) []token {
 			}
 		}
 
+		if startNumberIndex > -1 {
+			if isNegativeNumber {
+				return len(remaining), remaining[startNumberIndex-1:], nil
+			}
+			return len(remaining), remaining[startNumberIndex:], nil
+		}
 		return len(remaining), nil, nil
 	}
 
@@ -102,7 +109,7 @@ func tokenize(expression string) []token {
 
 	for scanner.Scan() {
 
-		tokenValue := scanner.Text()
+		tokenValue := strings.TrimSpace(scanner.Text())
 		tokenValues = append(tokenValues, tokenValue)
 		fmt.Println("Token found: ", tokenValue)
 		t := newToken(tokenValue)
@@ -132,9 +139,14 @@ func isEndOfGroup(b byte) bool {
 
 func isNegativeSign(b byte, currentTokens []string) bool {
 	lastItemIndex := len(currentTokens) - 1
-	if b == '-' && len(currentTokens) > 0 && len(currentTokens[lastItemIndex]) == 1 {
-		lastToken := currentTokens[lastItemIndex]
-		return !isNumber(lastToken[0])
+
+	if b == '-' {
+		if len(currentTokens) > 0 && len(currentTokens[lastItemIndex]) == 1 {
+			lastToken := currentTokens[lastItemIndex]
+			return !isNumber(lastToken[0])
+		} else if len(currentTokens) == 0 {
+			return true
+		}
 	}
 	return false
 }

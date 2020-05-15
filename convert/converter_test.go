@@ -13,6 +13,10 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 			expected: "-1",
 		},
 		testPackage{
+			input:    "456",
+			expected: "456",
+		},
+		testPackage{
 			input:    "(-1+84)/(5*4)",
 			expected: "-1 84 + 5 4 * /",
 		},
