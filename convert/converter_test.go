@@ -2,11 +2,6 @@ package convert
 
 import "testing"
 
-type testPackage struct {
-	input    string
-	expected string
-}
-
 func TestCanConvertCorrectStatements(assert *testing.T) {
 	tests := []testPackage{
 		testPackage{
@@ -30,5 +25,9 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 			assert.Errorf("Result for input %s did not match %s. Instead we received %s", test.input, test.expected, result)
 		}
 	}
+}
 
+type testPackage struct {
+	input    string
+	expected string
 }
