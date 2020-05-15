@@ -28,6 +28,7 @@ func parseArgs() string {
 }
 
 func main() {
+	fmt.Println("Received args: ", os.Args)
 	expressionToConvert := parseArgs()
 	if expressionToConvert == "" {
 		os.Exit(1)

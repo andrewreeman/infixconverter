@@ -3,5 +3,17 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"launch": {
+		"configurations": [
+		{
+			"name": "Launch main",
+			"type": "go",
+			"request": "launch",
+			"mode": "debug",
+			"program": "${workspaceFolder}/main.go",
+			"args": ["-e", "44--4+     0  *(4+37)"]
+		}
+		]
+	}
 }

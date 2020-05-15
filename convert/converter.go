@@ -13,13 +13,53 @@ func Convert(expression string) string {
 	}
 
 	tokens := tokenize(expression)
+	// tokens = toPostFix(tokens)
 
-	// stack := make([]token, 0, len(tokens))
+	builder := strings.Builder{}
+	builder.Grow(len(tokens))
+
 	for _, t := range tokens {
-		fmt.Println("Token: ", t)
+		fmt.Println(t)
+		builder.WriteString(t.value)
 	}
+	return builder.String()
+}
 
-	return "Not implemented"
+func toPostFix(tokens []token) []token {
+	stack := make([]token, 0, len(tokens))
+	tmpToken := newUnknown()
+	tokensCount := len(tokens)
+	for i, t := range tokens {
+
+		if t.tokenType == numericType {
+			if tmpToken.tokenType == operatorType {
+
+				if i < (tokensCount - 1) {
+					nextToken := tokens[i+1]
+					if nextToken.precedence() > tmpToken.precedence() {
+						rightOperandExpressionStack := toPostFix(tokens[i:])
+						stack = append(stack, rightOperandExpressionStack...)
+						stack = append(stack, tmpToken)
+					}
+				} else {
+					stack = append(stack, t)
+					stack = append(stack, tmpToken)
+				}
+				tmpToken.tokenType = unknownType
+			} else {
+				stack = append(stack, t)
+			}
+
+		} else if t.tokenType == operatorType {
+			tmpToken = t
+		} else if t.tokenType == groupStartType && tmpToken.tokenType == operatorType {
+			rightOperandExpressionStack := toPostFix(tokens[i+1:])
+			stack = append(stack, rightOperandExpressionStack...)
+			stack = append(stack, tmpToken)
+		}
+
+	}
+	return stack
 }
 
 func tokenize(expression string) []token {
@@ -33,19 +73,23 @@ func tokenize(expression string) []token {
 		var startNumberIndex = -1
 		for i, b := range remaining {
 			if startNumberIndex > -1 && !isNumber(b) {
+				startNumberIndexTmp := startNumberIndex
+				startNumberIndex = -1
 				if isNegativeNumber {
-					return i, remaining[startNumberIndex-1 : i], nil
+					return i, remaining[startNumberIndexTmp-1 : i], nil
 				}
-				return i, remaining[startNumberIndex:i], nil
+				return i, remaining[startNumberIndexTmp:i], nil
 			} else if isOperator(b) {
 				if isNegativeSign(b, tokenValues) {
 					isNegativeNumber = true
 				} else {
+					startNumberIndex = -1
 					return i + 1, remaining[i : i+1], nil
 				}
 			} else if isNumber(b) && startNumberIndex == -1 {
 				startNumberIndex = i
 			} else if isStartOfGroup(b) || isEndOfGroup(b) {
+				startNumberIndex = -1
 				return i + 1, remaining[i : i+1], nil
 			}
 		}
@@ -56,7 +100,11 @@ func tokenize(expression string) []token {
 	scanner.Split(split)
 
 	for scanner.Scan() {
-		t := newToken(scanner.Text())
+
+		tokenValue := scanner.Text()
+		tokenValues = append(tokenValues, tokenValue)
+		fmt.Println("Token found: ", tokenValue)
+		t := newToken(tokenValue)
 		if t.tokenType != unknownType {
 			tokens = append(tokens, t)
 		}
