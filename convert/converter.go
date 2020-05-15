@@ -6,21 +6,26 @@ import (
 	"strings"
 )
 
+type token string
+
 // Convert the provided expression from infix to a postfix notation
 func Convert(expression string) string {
 	if len(expression) == 0 {
 		return expression
 	}
 
-	tokenize(expression)
+	tokens := tokenize(expression)
+	for _, t := range tokens {
+		fmt.Println("Token: ", t)
+	}
 
 	return "Not implemented"
 }
 
-func tokenize(expression string) {
+func tokenize(expression string) []token {
 	scanner := bufio.NewScanner(strings.NewReader(expression))
 
-	tokens := make([]string, 0, len(expression))
+	tokens := make([]token, 0, len(expression))
 
 	split := func(remaining []byte, atEOF bool) (advance int, token []byte, err error) {
 		var isNegativeNumber bool
@@ -50,12 +55,10 @@ func tokenize(expression string) {
 	scanner.Split(split)
 
 	for scanner.Scan() {
-		tokens = append(tokens, scanner.Text())
+		tokens = append(tokens, token(scanner.Text()))
 	}
 
-	for _, t := range tokens {
-		fmt.Println("Token: ", t)
-	}
+	return tokens
 }
 
 func isOperator(b byte) bool {
@@ -74,7 +77,7 @@ func isEndOfGroup(b byte) bool {
 	return b == ')'
 }
 
-func isNegativeSign(b byte, currentTokens []string) bool {
+func isNegativeSign(b byte, currentTokens []token) bool {
 	lastItemIndex := len(currentTokens) - 1
 	if b == '-' && len(currentTokens) > 0 && len(currentTokens[lastItemIndex]) == 1 {
 		lastToken := currentTokens[lastItemIndex]
