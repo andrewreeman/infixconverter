@@ -13,15 +13,15 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 			input:    "44 - -4 +     0  * (4 + 37)",
 			expected: "44 -4 - 0 4 37 + * +",
 		},
+		testPackage{
+			input:    "-1",
+			expected: "-1",
+		},
+		testPackage{
+			input:    "(-1+84)/(5*4)",
+			expected: "-1 84 + 5 4 * /",
+		},
 	}
-
-	// input := "44 - -4 +     0  * (4 + 37)"
-	// result := Convert(input)
-	// expected := "44 -4 - 0 4 37 + * +"
-
-	// if result != expected {
-	// 	t.Errorf("Result for input %s did not match %s. Instead we received %s", input, expected, result)
-	// }
 
 	for _, test := range tests {
 		result := Convert(test.input)
