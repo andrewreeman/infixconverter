@@ -42,6 +42,8 @@ func toPostFix(tokens []token) []token {
 						stack = append(stack, rightOperandExpressionStack...)
 						stack = append(stack, tmpToken)
 						return stack
+					} else if nextToken.value[0] == '^' && tmpToken.value[0] == '^' {
+
 					}
 				}
 				stack = append(stack, t)
@@ -124,7 +126,7 @@ func tokenize(expression string) []token {
 }
 
 func isOperator(b byte) bool {
-	return b == '+' || b == '-' || b == '/' || b == '*'
+	return b == '+' || b == '-' || b == '/' || b == '*' || b == '^'
 }
 
 func isNumber(b byte) bool {
@@ -155,10 +157,14 @@ func isNegativeSign(b byte, currentTokens []string) bool {
 
 func (t token) precedence() int {
 	if t.tokenType == groupStartType {
-		return 3
+		return 4
 	}
 
 	if t.tokenType == operatorType {
+		if t.value == "^" {
+			return 3
+		}
+
 		if t.value == "*" || t.value == "/" {
 			return 2
 		}
