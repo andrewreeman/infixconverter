@@ -25,7 +25,7 @@ func Convert(expression string) string {
 	return strings.TrimSpace(builder.String())
 }
 
-func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []token {
+func toPostFix(tokens []token, rightAssociativityTokens []token, depth int) []token {
 	fmt.Println("===Post fix called at depth===", depth)
 	stack := make([]token, 0, len(tokens))
 	tmpToken := newUnknown()
@@ -45,11 +45,16 @@ func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []toke
 						fmt.Println("Token is higher precedence than buffered token", nextToken.value, tmpToken.value)
 						fmt.Println("depth ", depth)
 
-						rightOperandExpressionStack := toPostFix(tokens[i:], rightAssociativityToken, depth+1)
+						rightOperandExpressionStack := toPostFix(tokens[i:], rightAssociativityTokens, depth+1)
 						stack = append(stack, rightOperandExpressionStack...)
 						stack = append(stack, tmpToken)
+
+						if rightAssociativityTokens != nil {
+							stack = append(stack, rightAssociativityTokens...)
+						}
+
 						return stack
-					} else if rightAssociativityToken != nil && (*rightAssociativityToken).value == "^" && nextToken.tokenType == operatorType && nextToken.precedence() < (*rightAssociativityToken).precedence() {
+					} else if rightAssociativityTokens != nil && nextToken.tokenType == operatorType && nextToken.precedence() < rightAssociativityTokens[0].precedence() {
 						fmt.Println("BOOM!", nextToken)
 						fmt.Println("Stack when found token of lower precedence than right asoc")
 						fmt.Println("depth ", depth)
@@ -66,7 +71,7 @@ func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []toke
 						}
 						stack = append(stack, t)
 						stack = append(stack, tmpToken)
-						stack = append(stack, *rightAssociativityToken)
+						stack = append(stack, rightAssociativityTokens...)
 						stack = append(stack, rightOperandExpressionStack...)
 
 						fmt.Println("Printing stack after adding tokens at depth ", depth)
@@ -82,12 +87,23 @@ func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []toke
 						for _, _t := range stack {
 							fmt.Println(_t.value)
 						}
-						rightOperandExpressionStack := toPostFix(tokens[i:], &tmpToken, depth+1)
+
+						var _rightAssociativityTokens []token
+
+						if rightAssociativityTokens == nil {
+							_rightAssociativityTokens = make([]token, 0, len(tokens))
+						} else {
+							_rightAssociativityTokens = rightAssociativityTokens
+						}
+
+						_rightAssociativityTokens = append(_rightAssociativityTokens, tmpToken)
+
+						rightOperandExpressionStack := toPostFix(tokens[i:], _rightAssociativityTokens, depth+1)
 						stack = append(stack, rightOperandExpressionStack...)
 
-						if rightAssociativityToken != nil && (*rightAssociativityToken).value == "^" {
-							stack = append(stack, *rightAssociativityToken)
-						}
+						// if _rightAssociativityTokens != nil {
+						// 	stack = append(stack, _rightAssociativityTokens...)
+						// }
 
 						fmt.Println("index is ", i)
 
@@ -107,8 +123,8 @@ func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []toke
 				stack = append(stack, t)
 				stack = append(stack, tmpToken)
 
-				if rightAssociativityToken != nil && (*rightAssociativityToken).value == "^" {
-					stack = append(stack, *rightAssociativityToken)
+				if rightAssociativityTokens != nil {
+					stack = append(stack, rightAssociativityTokens...)
 				}
 
 				tmpToken.tokenType = unknownType
@@ -123,9 +139,14 @@ func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []toke
 			fmt.Println("depth ", depth)
 			tmpToken = t
 		} else if t.tokenType == groupStartType && tmpToken.tokenType == operatorType {
-			rightOperandExpressionStack := toPostFix(tokens[i+1:], rightAssociativityToken, depth+1)
+			rightOperandExpressionStack := toPostFix(tokens[i+1:], rightAssociativityTokens, depth+1)
 			stack = append(stack, rightOperandExpressionStack...)
 			stack = append(stack, tmpToken)
+
+			if rightAssociativityTokens != nil {
+				stack = append(stack, rightAssociativityTokens...)
+			}
+
 			return stack
 		}
 
