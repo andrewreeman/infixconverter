@@ -40,10 +40,10 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 			input:    "2^5+1",
 			expected: "2 5 ^ 1 +",
 		},
-		// testPackage{
-		// 	input:    "2^5^8^9",
-		// 	expected: "2 5 8 9 ^ ^ ^",
-		// },
+		testPackage{
+			input:    "2^5^8^9",
+			expected: "2 5 8 9 ^ ^ ^",
+		},
 		// testPackage{
 		// 	input:    "2^5^(8-4)^9",
 		// 	expected: "2 5 8 4 - 9 ^ ^ ^",

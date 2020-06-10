@@ -85,6 +85,10 @@ func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []toke
 						rightOperandExpressionStack := toPostFix(tokens[i:], &tmpToken, depth+1)
 						stack = append(stack, rightOperandExpressionStack...)
 
+						if rightAssociativityToken != nil && (*rightAssociativityToken).value == "^" {
+							stack = append(stack, *rightAssociativityToken)
+						}
+
 						fmt.Println("index is ", i)
 
 						fmt.Println("Stack is after ")
