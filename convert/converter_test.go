@@ -28,18 +28,18 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 		// 	input:    "4*((2+6)/3)-2^2^3",
 		// 	expected: "4 2 6 + 3 / * 2 2 3 ^ ^ -",
 		// },
-		// testPackage{
-		// 	input:    "2^5^3",
-		// 	expected: "2 5 3 ^ ^",
-		// },
+		testPackage{
+			input:    "2^5^3",
+			expected: "2 5 3 ^ ^",
+		},
 		testPackage{
 			input:    "2^5^3+1",
 			expected: "2 5 3 ^ ^ 1 +",
 		},
-		// testPackage{
-		// 	input:    "2^5+1",
-		// 	expected: "2 5 ^ 1 +",
-		// },
+		testPackage{
+			input:    "2^5+1",
+			expected: "2 5 ^ 1 +",
+		},
 		// testPackage{
 		// 	input:    "2^5^8^9",
 		// 	expected: "2 5 8 9 ^ ^ ^",
