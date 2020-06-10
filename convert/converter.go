@@ -13,50 +13,107 @@ func Convert(expression string) string {
 	}
 
 	tokens := tokenize(expression)
-	tokens = toPostFix(tokens)
+	tokens = toPostFix(tokens, nil, 0)
 
 	builder := strings.Builder{}
 	builder.Grow(len(tokens))
 
 	for _, t := range tokens {
-		fmt.Println(t)
 		builder.WriteString(t.value + " ")
 	}
 
 	return strings.TrimSpace(builder.String())
 }
 
-func toPostFix(tokens []token) []token {
+func toPostFix(tokens []token, rightAssociativityToken *token, depth int) []token {
+	fmt.Println("===Post fix called at depth===", depth)
 	stack := make([]token, 0, len(tokens))
 	tmpToken := newUnknown()
 	tokensCount := len(tokens)
 	for i, t := range tokens {
-
+		fmt.Println("Processing token ", t.value)
+		fmt.Println("depth ", depth)
 		if t.tokenType == numericType {
+			fmt.Println("Current token is number")
+			fmt.Println("depth ", depth)
 			if tmpToken.tokenType == operatorType {
-
+				fmt.Println("Buffered token is operator")
 				if i < (tokensCount - 1) {
 					nextToken := tokens[i+1]
 					if nextToken.precedence() > tmpToken.precedence() {
-						rightOperandExpressionStack := toPostFix(tokens[i:])
+
+						fmt.Println("Token is higher precedence than buffered token", nextToken.value, tmpToken.value)
+						fmt.Println("depth ", depth)
+
+						rightOperandExpressionStack := toPostFix(tokens[i:], rightAssociativityToken, depth+1)
 						stack = append(stack, rightOperandExpressionStack...)
 						stack = append(stack, tmpToken)
 						return stack
-					} else if nextToken.value[0] == '^' && tmpToken.value[0] == '^' {
+					} else if rightAssociativityToken != nil && (*rightAssociativityToken).value == "^" && nextToken.tokenType == operatorType && nextToken.precedence() < (*rightAssociativityToken).precedence() {
+						fmt.Println("BOOM!", nextToken)
+						fmt.Println("Stack when found token of lower precedence than right asoc")
+						fmt.Println("depth ", depth)
 
+						for _, _t := range stack {
+							fmt.Println(_t.value)
+						}
+
+						fmt.Println("Now current will be left operand. Now obtaining right operand expression at depth", depth)
+						rightOperandExpressionStack := toPostFix(tokens[i+1:], nil, depth+1)
+						fmt.Println("Printing right operand expression at depth ", depth)
+						for _, _t := range rightOperandExpressionStack {
+							fmt.Println(_t.value)
+						}
+						stack = append(stack, t)
+						stack = append(stack, tmpToken)
+						stack = append(stack, *rightAssociativityToken)
+						stack = append(stack, rightOperandExpressionStack...)
+
+						fmt.Println("Printing stack after adding tokens at depth ", depth)
+						for _, _t := range stack {
+							fmt.Println(_t.value)
+						}
+						return stack
+
+					} else if nextToken.value[0] == '^' && tmpToken.value[0] == '^' {
+						fmt.Println("Current token and buffered token are both ^")
+						fmt.Println("depth ", depth)
+						fmt.Println("Current stack is ")
+						for _, _t := range stack {
+							fmt.Println(_t.value)
+						}
+						rightOperandExpressionStack := toPostFix(tokens[i:], &tmpToken, depth+1)
+						stack = append(stack, rightOperandExpressionStack...)
+						// stack = append(stack, tmpToken)
+
+						fmt.Println("Stack is after ")
+						fmt.Println("depth ", depth)
+						for _, _t := range stack {
+							fmt.Println(_t.value)
+						}
+						fmt.Println("Finished printing stack")
+						fmt.Println("Current token is ", t)
+						fmt.Println("depth ", depth)
+						return stack
 					}
 				}
+				fmt.Println("Adding token and tmp token to stack", t.value, tmpToken.value)
+				fmt.Println("depth ", depth)
 				stack = append(stack, t)
 				stack = append(stack, tmpToken)
 				tmpToken.tokenType = unknownType
 			} else {
+				fmt.Println("Adding token to stack")
+				fmt.Println("depth ", depth)
 				stack = append(stack, t)
 			}
 
 		} else if t.tokenType == operatorType {
+			fmt.Println("Current token is operator")
+			fmt.Println("depth ", depth)
 			tmpToken = t
 		} else if t.tokenType == groupStartType && tmpToken.tokenType == operatorType {
-			rightOperandExpressionStack := toPostFix(tokens[i+1:])
+			rightOperandExpressionStack := toPostFix(tokens[i+1:], rightAssociativityToken, depth+1)
 			stack = append(stack, rightOperandExpressionStack...)
 			stack = append(stack, tmpToken)
 			return stack
@@ -115,7 +172,6 @@ func tokenize(expression string) []token {
 
 		tokenValue := strings.TrimSpace(scanner.Text())
 		tokenValues = append(tokenValues, tokenValue)
-		fmt.Println("Token found: ", tokenValue)
 		t := newToken(tokenValue)
 		if t.tokenType != unknownType {
 			tokens = append(tokens, t)
