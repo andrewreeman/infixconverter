@@ -24,10 +24,10 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 			input:    "-(-1+84)/(5*4)",
 			expected: "-1 84 + 5 4 * / -",
 		},
-		// testPackage{
-		// 	input:    "4*((2+6)/3)-2^2^3",
-		// 	expected: "4 2 6 + 3 / * 2 2 3 ^ ^ -",
-		// },
+		testPackage{
+			input:    "4*((2+6)/3)-2^2^3",
+			expected: "4 2 6 + 3 / * 2 2 3 ^ ^ -",
+		},
 		testPackage{
 			input:    "2^5^3",
 			expected: "2 5 3 ^ ^",
@@ -44,10 +44,10 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 			input:    "2^5^8^9",
 			expected: "2 5 8 9 ^ ^ ^",
 		},
-		// testPackage{
-		// 	input:    "2^5^(8-4)^9",
-		// 	expected: "2 5 8 4 - 9 ^ ^ ^",
-		// },
+		testPackage{
+			input:    "2^5^(8-4)^9",
+			expected: "2 5 8 4 - 9 ^ ^ ^",
+		},
 		testPackage{
 			input:    "2^5^8^9+84",
 			expected: "2 5 8 9 ^ ^ ^ 84 +",
@@ -55,7 +55,7 @@ func TestCanConvertCorrectStatements(assert *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := Convert(test.input)
+		result := Convert2(test.input)
 
 		if result != test.expected {
 			assert.Errorf("Result for input %s did not match %s. Instead we received %s", test.input, test.expected, result)

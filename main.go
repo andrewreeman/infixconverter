@@ -35,5 +35,5 @@ func main() {
 		return
 	}
 
-	fmt.Println(convert.Convert(expressionToConvert))
+	fmt.Println(convert.Convert2(expressionToConvert))
 }
